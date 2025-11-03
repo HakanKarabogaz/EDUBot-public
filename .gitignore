@@ -31,3 +31,6 @@ desktop.ini
 *.csv
 *.json
 *.data
+
+# Docs klasörü (development logs - private)
+docs/
