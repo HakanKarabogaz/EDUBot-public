@@ -58,16 +58,6 @@ function Dashboard({ onNavigate, onSelectWorkflow }) {
     }
   };
 
-  const handleStartWorkflow = async (workflowId) => {
-    try {
-      await window.electronAPI.invoke('workflow:start', workflowId);
-      loadDashboardData(); // Refresh
-    } catch (error) {
-      console.error('Workflow başlatılamadı:', error);
-      alert('Workflow başlatılamadı: ' + error.message);
-    }
-  };
-
   const handleEditWorkflow = (workflow) => {
     onSelectWorkflow(workflow);
     onNavigate('workflow-designer');
@@ -258,18 +248,10 @@ function Dashboard({ onNavigate, onSelectWorkflow }) {
                   </div>
 
                   <div className="workflow-actions">
-                    {/*Workflow kartında: 05102025 1825 te eklendi*/}
                     <button 
                       className="btn-icon btn-primary"
                       onClick={() => setSelectedWorkflow(workflow)}
                       title="Çalıştır"
-                    >
-                      <Play size={18} />
-                    </button>
-                    <button 
-                      className="btn-icon btn-success" 
-                      onClick={() => handleStartWorkflow(workflow.id)}
-                      title="Başlat"
                     >
                       <Play size={18} />
                     </button>
