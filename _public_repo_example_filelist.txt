@@ -1,0 +1,45 @@
+# EDUBot Public Repo - Örnek Dosya Listesi
+
+README.md
+LICENSE (isteğe bağlı, MIT önerilir)
+
+# Kaynak Kod
+src/
+  main/
+    index.js
+    database.js (örnek, hassas veri olmadan)
+    workflow-executor.js (örnek)
+    ipc-handlers.js (örnek)
+    browser-controller.js (örnek)
+  renderer/
+    App.jsx
+    components/
+      Dashboard.jsx
+      WorkflowDesigner.jsx
+      DataSourceManager.jsx
+      LogViewer.jsx
+    HybridImportManager.jsx (örnek)
+    HybridWorkflowCreator.jsx (örnek)
+  preload.js
+
+# Konfigürasyon ve Dökümantasyon
+vite.config.js
+package.json
+README.md
+docs/
+  public-usage.md
+  architecture-overview.md
+
+# Demo/Test (gerçek veri olmadan)
+test/
+  sample-grades.csv (örnek, anonim)
+  csv-test-form.html (örnek)
+
+# Görseller ve Vitrin
+assets/
+  logo.png
+  screenshot1.png
+  screenshot2.png
+
+# .gitignore (sade, eklendi)
+.gitignore
