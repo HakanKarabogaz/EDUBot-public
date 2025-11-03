@@ -1,0 +1,209 @@
+# 🤖 EDUBot - Academic Administration Automation (Demo)
+
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![Platform: Windows](https://img.shields.io/badge/platform-Windows-blue.svg)](https://www.microsoft.com/windows)
+[![Framework: Electron](https://img.shields.io/badge/framework-Electron-47848F.svg)](https://www.electronjs.org/)
+[![UI: React](https://img.shields.io/badge/UI-React-61DAFB.svg)](https://reactjs.org/)
+
+> ⚠️ **This is a DEMO/EDUCATIONAL version for portfolio showcase only.**  
+> 🔒 **Production features and core business logic are in private repository.**  
+> 💼 **Commercial inquiries: hakankarabogaz@tarsus.edu.tr**
+
+---
+
+## 📋 Overview
+
+EDUBot is an **Electron-based desktop automation tool** designed for academic administration tasks in Turkish universities. This repository showcases the **UI/UX components and architecture** while keeping core automation logic private.
+
+### ✨ Key Features (Demo Version)
+
+- 🎨 **Modern React UI** - Dashboard, workflow designer, data manager
+- 📊 **Database Schema** - Academic data model (students, courses, grades)
+- 🔐 **Secure IPC Bridge** - Electron preload security patterns
+- 🎯 **Component Showcase** - Modal dialogs, forms, tables
+- 📱 **Responsive Design** - Modern CSS with animations
+
+### 🚫 Not Included in Public Version
+
+The following production features are **NOT** in this repository:
+
+- ❌ Core workflow execution engine
+- ❌ Browser automation controller
+- ❌ Smart element selector algorithms
+- ❌ Data mapping & processing logic
+- ❌ Target system integrations
+- ❌ Advanced error handling & retry mechanisms
+- ❌ Production-ready security features
+
+---
+
+## 🏗️ Architecture (High-Level)
+
+```
+┌─────────────────────────────────────┐
+│         EDUBot Platform             │
+├──────────────┬──────────────────────┤
+│  Frontend    │  Backend (Private)   │
+│  (Public)    │                      │
+├──────────────┼──────────────────────┤
+│ React UI     │ Workflow Engine      │
+│ Components   │ Browser Controller   │
+│ CSS/Styles   │ Smart Selectors      │
+│ IPC Client   │ Data Mapper          │
+└──────────────┴──────────────────────┘
+```
+
+---
+
+## 🛠️ Technology Stack
+
+### Frontend (Public)
+- **Framework:** Electron + React 18
+- **Build Tool:** Vite
+- **Styling:** CSS3 with CSS Variables
+- **Icons:** Lucide React
+- **State:** React Hooks (useState, useEffect)
+
+### Backend (Private - Not in this repo)
+- **Runtime:** Node.js
+- **Database:** SQLite3 / Better-SQLite3
+- **Automation:** Puppeteer (Headless Chrome)
+- **Architecture:** Event-driven with IPC
+
+---
+
+## 📦 Installation (Demo UI Only)
+
+```bash
+# Clone repository
+git clone https://github.com/HakanKarabogaz/EDUBot-public.git
+cd EDUBot-public
+
+# Install dependencies
+npm install
+
+# Run development server (UI only)
+npm run dev
+```
+
+> ⚠️ **Note:** This will only show the UI components. Core functionality requires private backend modules.
+
+---
+
+## 📸 Screenshots
+
+### Dashboard
+![Dashboard](docs/screenshots/dashboard.png)
+*Modern dashboard with workflow management and statistics*
+
+### Workflow Designer
+![Workflow Designer](docs/screenshots/workflow-designer.png)
+*Visual workflow creation interface*
+
+### Data Import
+![Data Import](docs/screenshots/hybrid-import.png)
+*CSV data import and preview*
+
+---
+
+## 🎓 Use Cases (Production Version)
+
+The full production version (private) is used for:
+
+- ✅ Bulk grade entry to university systems
+- ✅ Student data management automation
+- ✅ Course enrollment processing
+- ✅ Academic workflow automation
+- ✅ YÖKSİS/OBS integration
+
+---
+
+## 📜 License
+
+This project is licensed under **AGPL-3.0** License.
+
+### 🔒 License Restrictions
+
+- ✅ **Personal Use:** Free for educational and research purposes
+- ✅ **Open Source Projects:** Free if your project is also AGPL-3.0
+- ❌ **Commercial Use:** Requires commercial license
+- ❌ **SaaS/Cloud:** Requires special license
+- ❌ **Closed Source:** Not allowed without permission
+
+**Commercial License Available:** Contact hakankarabogaz@tarsus.edu.tr
+
+---
+
+## ⚖️ Legal Disclaimer
+
+```
+This software is provided "AS IS" for educational and demonstration purposes only.
+
+- This is NOT production-ready software
+- No warranties or guarantees provided
+- User assumes all responsibility for use
+- Not affiliated with any university system
+- Automation must comply with target system's Terms of Service
+```
+
+---
+
+## 🤝 Contributing
+
+This is a **showcase repository**. Contributions are limited to:
+
+- 🐛 Bug reports (UI/UX issues only)
+- 💡 Feature suggestions
+- 📝 Documentation improvements
+- 🎨 UI/Design enhancements
+
+**Core features:** Not accepting contributions (private repo)
+
+---
+
+## 👨‍💻 Author
+
+**Hakan Karaboğaz**
+- 📧 Email: hakankarabogaz@tarsus.edu.tr
+- 🐙 GitHub: [@HakanKarabogaz](https://github.com/HakanKarabogaz)
+- 🏢 Institution: Tarsus University
+
+---
+
+## 📌 Project Status
+
+- ✅ **UI/UX:** Complete and showcased here
+- 🔒 **Backend:** Private repository (production-ready)
+- 🚀 **Status:** Active development
+- 📅 **Last Updated:** November 2025
+
+---
+
+## 🔗 Related Projects
+
+- [Electron](https://www.electronjs.org/) - Desktop app framework
+- [React](https://reactjs.org/) - UI library
+- [Puppeteer](https://pptr.dev/) - Browser automation (not in this repo)
+
+---
+
+## 📞 Commercial Inquiries
+
+Interested in the **full production version**?
+
+- 🏢 **Enterprise License:** Custom features + support
+- 🎓 **University License:** Tailored for your institution
+- 💼 **Consulting:** Implementation and training
+- 🛠️ **Custom Development:** Specific integrations
+
+**Contact:** hakankarabogaz@tarsus.edu.tr
+
+---
+
+<div align="center">
+
+**⭐ Star this repo if you find it useful!**
+
+Made with ❤️ for Turkish Universities
+
+</div>
