@@ -22,6 +22,11 @@ EDUBot is an **Electron-based desktop automation tool** designed for academic ad
 - 🔐 **Secure IPC Bridge** - Electron preload security patterns
 - 🎯 **Component Showcase** - Modal dialogs, forms, tables
 - 📱 **Responsive Design** - Modern CSS with animations
+- 🔄 **Workflow Duplication** - One-click workflow copy with modal UI
+  - ✅ Interactive modal dialog with smooth animations
+  - ✅ Auto-suggested naming (Original Name + Date)
+  - ✅ Real-time input validation
+  - ✅ Keyboard shortcuts (Enter to confirm)
 
 ### 🚫 Not Included in Public Version
 
@@ -95,6 +100,42 @@ npm run dev
 ### Dashboard
 ![Dashboard](docs/screenshots/dashboard.png)
 *Modern dashboard with workflow management and statistics*
+
+### Workflow Duplication Feature
+![Workflow Duplication](docs/screenshots/workflow-duplication.png)
+*One-click workflow copy with interactive modal dialog*
+
+**Recent Feature (Nov 2025):** Workflow Duplication
+- Click "Copy" button on any workflow card
+- Modal dialog opens with auto-suggested name
+- Edit name and press Enter or click "Kopyala"
+- New workflow created instantly with all steps
+- Behind the scenes: Atomic database transaction copies workflow + all action steps
+
+**Implementation Highlights (UI Layer - Public):**
+```jsx
+// Modal state management
+const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+const [workflowToDuplicate, setWorkflowToDuplicate] = useState(null);
+const [newWorkflowName, setNewWorkflowName] = useState('');
+
+// Auto-suggested naming with current date
+const defaultName = `${workflow.name} (Kopya - ${new Date().toLocaleDateString('tr-TR')})`;
+
+// Real-time validation
+const isValidName = newWorkflowName.trim().length >= 3;
+
+// Smooth animations (CSS)
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(20px); } to { transform: translateY(0); } }
+```
+
+**Backend Logic (Private Repo - Not shown):**
+- Transaction-based atomic copy (BEGIN → COMMIT/ROLLBACK)
+- Validation (ID check, name length 3-100 chars)
+- Duplicate detection with friendly error messages
+- Workflow + all action steps copied in single transaction
+- Automatic ID generation using `lastInsertRowid`
 
 ### Workflow Designer
 ![Workflow Designer](docs/screenshots/workflow-designer.png)
