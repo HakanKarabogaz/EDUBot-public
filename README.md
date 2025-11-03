@@ -95,6 +95,14 @@ npm run dev
 
 ---
 
+## 📚 Documentation
+
+- 📖 **[FEATURES.md](./FEATURES.md)** - Detailed feature documentation with code examples
+- 🔒 **[SECURITY.md](./SECURITY.md)** - Security policies and vulnerability reporting
+- ⚖️ **[LICENSE](./LICENSE)** - AGPL-3.0 license terms and commercial options
+
+---
+
 ## 📸 Screenshots
 
 ### Dashboard
