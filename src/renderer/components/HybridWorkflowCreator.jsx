@@ -153,7 +153,7 @@ const HybridWorkflowCreator = ({ onBack }) => {
                             type="url"
                             value={workflowConfig.targetUrl}
                             onChange={(e) => setWorkflowConfig(prev => ({ ...prev, targetUrl: e.target.value }))}
-                            placeholder="https://obs.tarsus.edu.tr/..."
+                            placeholder="https://obs.example.edu.tr/..."
                         />
                     </div>
 

@@ -196,7 +196,7 @@ const WorkflowDesigner = ({ workflowId, onSave, onCancel, onBack }) => {
               type="url"
               value={workflow.target_url}
               onChange={(e) => setWorkflow({ ...workflow, target_url: e.target.value })}
-              placeholder="https://obs.tarsus.edu.tr/OBS_Ogrenciler/Goruntule"
+              placeholder="https://obs.example.edu.tr/OBS_Ogrenciler/Goruntule"
             />
           </div>
 
