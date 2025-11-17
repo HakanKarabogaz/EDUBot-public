@@ -9,6 +9,8 @@ function WorkflowRunner({ workflow, onClose }) {
     const [isPaused, setIsPaused] = useState(false);
     const [isWaitingForUser, setIsWaitingForUser] = useState(false);
     const [waitMessage, setWaitMessage] = useState('');
+    const [showBrowserSelection, setShowBrowserSelection] = useState(false);
+    const [browserChoices, setBrowserChoices] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [stats, setStats] = useState({
         total: 0,
@@ -59,6 +61,22 @@ function WorkflowRunner({ workflow, onClose }) {
             addLog('error', `Hata: ${data.error}`);
         };
 
+        const handleBrowserSelectionRequired = (data) => {
+            console.log('🌐 Frontend: Tarayıcı seçimi gerekli event alındı!');
+            console.log('🌐 Frontend: data:', data);
+            console.log('🌐 Frontend: choices:', data.choices);
+            setBrowserChoices(data.choices || []);
+            setShowBrowserSelection(true);
+            addLog('info', `🌐 Tarayıcı seçimi bekleniyor (${data.choices?.length || 0} seçenek)...`);
+        };
+
+        const handleLoginRequired = (data) => {
+            console.log('🔐 Frontend: Login gerekli:', data);
+            setIsWaitingForUser(true);
+            setWaitMessage(data.message || 'Lütfen tarayıcıda login yapın ve devam edin.');
+            addLog('warning', '🔐 Login gerekli - manuel işlem bekleniyor');
+        };
+
         // Event listener'ları ekle
         console.log('🔧 Frontend: Event listener eklemeye başlıyor...');
         
@@ -71,6 +89,12 @@ function WorkflowRunner({ workflow, onClose }) {
             
             window.electronAPI.on('workflow-error', handleWorkflowError);
             console.log('✅ Frontend: workflow-error listener eklendi');
+            
+            window.electronAPI.on('browser-selection-required', handleBrowserSelectionRequired);
+            console.log('✅ Frontend: browser-selection-required listener eklendi');
+            
+            window.electronAPI.on('login-required', handleLoginRequired);
+            console.log('✅ Frontend: login-required listener eklendi');
             
             console.log('✅ Frontend: Tüm event listener\'lar başarıyla eklendi!');
             
@@ -150,20 +174,26 @@ function WorkflowRunner({ workflow, onClose }) {
 
     // Workflow'u başlat
     const handleStart = async () => {
-        if (!selectedDataSource || records.length === 0) {
-            addLog('error', 'Lütfen önce bir veri kaynağı seçin');
-            return;
+        // Veri kaynağı opsiyonel - yoksa tek sefer çalışır (navigation/click only)
+        if (!selectedDataSource && records.length === 0) {
+            const confirmNoData = window.confirm(
+                'Veri kaynağı seçilmedi. Workflow sadece bir kez çalışacak (tıklama/navigasyon işlemleri için).\n\nDevam etmek istiyor musunuz?'
+            );
+            if (!confirmNoData) return;
         }
 
         setIsRunning(true);
         setStartTime(Date.now());
         addLog('info', `Workflow başlatıldı: ${workflow.name}`);
+        if (!selectedDataSource) {
+            addLog('info', '📦 Veri kaynağı yok - tek sefer çalışma modu');
+        }
 
         try {
             // ✅ YENİ: WorkflowExecutor kullanarak çalıştır
             const result = await window.electronAPI.execution.execute(
                 workflow.id, 
-                selectedDataSource.id, 
+                selectedDataSource ? selectedDataSource.id : null, // null gönderilebilir
                 {
                     delayBetweenRecords: 1000, // Kayıtlar arası 1 saniye bekle
                     browserOptions: {
@@ -192,6 +222,40 @@ function WorkflowRunner({ workflow, onClose }) {
             addLog('error', `❌ Workflow hatası: ${error.message}`);
         } finally {
             setIsRunning(false);
+        }
+    };
+
+    // Tarayıcıyı debug mode'da başlat
+    const handleLaunchBrowser = async (browserType) => {
+        try {
+            addLog('info', `🚀 ${browserType === 'chrome' ? 'Chrome' : 'Edge'} debug mode'da başlatılıyor...`);
+            const result = await window.electronAPI.invoke('browser:launch-debug', browserType);
+            
+            if (result.success) {
+                addLog('success', `✅ Tarayıcı başlatıldı! Şimdi login olun ve workflow'u başlatın.`);
+            } else {
+                addLog('error', `❌ Tarayıcı başlatma hatası: ${result.message}`);
+            }
+        } catch (error) {
+            console.error('Tarayıcı başlatma hatası:', error);
+            addLog('error', `❌ Tarayıcı başlatma hatası: ${error.message}`);
+        }
+    };
+
+    // Tarayıcı seçimi
+    const handleBrowserSelect = async (choice) => {
+        console.log('🌐 Frontend: Tarayıcı seçildi:', choice);
+        try {
+            const result = await window.electronAPI.execution.selectBrowser(choice);
+            if (result.success) {
+                setShowBrowserSelection(false);
+                addLog('success', `✅ ${choice.label} seçildi`);
+            } else {
+                addLog('error', 'Tarayıcı seçimi hatası: ' + result.message);
+            }
+        } catch (error) {
+            console.error('🚨 Frontend: Tarayıcı seçimi hatası:', error);
+            addLog('error', 'Tarayıcı seçimi hatası: ' + error.message);
         }
     };
 
@@ -334,15 +398,65 @@ function WorkflowRunner({ workflow, onClose }) {
                 <button onClick={onClose} className="close-btn">✖️</button>
             </div>
 
+            {/* Tarayıcı Seçim Modalı */}
+            {showBrowserSelection && (
+                <div className="browser-selection-modal">
+                    <div className="modal-content">
+                        <h3>🌐 Tarayıcı Seçin</h3>
+                        <p className="help-text">
+                            Açık olan ve login olduğunuz tarayıcıyı seçerseniz, yeniden login yapmanıza gerek kalmaz.
+                        </p>
+                        <div className="browser-choices">
+                            {browserChoices.map((choice) => (
+                                <button
+                                    key={choice.id}
+                                    onClick={() => handleBrowserSelect(choice)}
+                                    className="browser-choice-btn"
+                                >
+                                    <span className="browser-icon">{choice.label.split(' ')[0]}</span>
+                                    <span className="browser-name">{choice.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Veri Kaynağı Seçimi */}
             {!isRunning && (
                 <div className="data-source-section">
-                    <h3>📊 Veri Kaynağı Seçin</h3>
+                    <div className="browser-launch-section">
+                        <h3>🌐 Tarayıcı Hazırlığı</h3>
+                        <p className="help-text">
+                            💡 Önce tarayıcınızı debug mode'da başlatın ve login olun. 
+                            Böylece her workflow'da yeniden login yapmanıza gerek kalmaz.
+                        </p>
+                        <div className="browser-launch-buttons">
+                            <button 
+                                onClick={() => handleLaunchBrowser('chrome')} 
+                                className="launch-browser-btn chrome-btn"
+                            >
+                                🌐 Chrome ile Başlat
+                            </button>
+                            <button 
+                                onClick={() => handleLaunchBrowser('edge')} 
+                                className="launch-browser-btn edge-btn"
+                            >
+                                🔷 Edge ile Başlat
+                            </button>
+                        </div>
+                    </div>
+
+                    <h3>📊 Veri Kaynağı Seçin (Opsiyonel)</h3>
+                    <p className="help-text">
+                        💡 Veri girişi yapacaksanız veri kaynağı seçin. 
+                        Sadece tıklama/navigasyon için seçmeden başlatabilirsiniz.
+                    </p>
                     <select
                         onChange={(e) => handleDataSourceSelect(e.target.value)}
                         className="data-source-select"
                     >
-                        <option value="">-- Seçiniz --</option>
+                        <option value="">-- Veri kaynağı yok (tek sefer çalışma) --</option>
                         {dataSources.map(ds => (
                             <option key={ds.id} value={ds.id}>
                                 {ds.name} ({ds.data_type})
@@ -353,11 +467,14 @@ function WorkflowRunner({ workflow, onClose }) {
                     {records.length > 0 && (
                         <div className="records-preview">
                             <p>✅ {records.length} kayıt yüklendi</p>
-                            <button onClick={handleStart} className="start-btn">
-                                ▶️ Başlat
-                            </button>
                         </div>
                     )}
+                    
+                    <div className="records-preview">
+                        <button onClick={handleStart} className="start-btn">
+                            ▶️ Başlat
+                        </button>
+                    </div>
                 </div>
             )}
 

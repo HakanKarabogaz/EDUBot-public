@@ -33,6 +33,137 @@ cssCopy
     background: #cc0000;
 }
 
+/* Tarayıcı Seçim Modalı */
+.browser-selection-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.browser-selection-modal .modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.browser-selection-modal h3 {
+    margin-top: 0;
+    color: #333;
+    font-size: 24px;
+}
+
+.browser-selection-modal .help-text {
+    color: #666;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.browser-choices {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.browser-choice-btn {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 20px;
+    background: #f8f9fa;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+}
+
+.browser-choice-btn:hover {
+    background: #e3f2fd;
+    border-color: #2196F3;
+    transform: translateX(5px);
+}
+
+.browser-icon {
+    font-size: 24px;
+}
+
+.browser-name {
+    flex: 1;
+    text-align: left;
+    color: #333;
+}
+
+/* Tarayıcı Başlatma Bölümü */
+.browser-launch-section {
+    background: #e3f2fd;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 2px solid #2196F3;
+}
+
+.browser-launch-section h3 {
+    margin-top: 0;
+    color: #1976D2;
+}
+
+.browser-launch-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.launch-browser-btn {
+    flex: 1;
+    padding: 15px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    border: 2px solid;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.chrome-btn {
+    background: #fff;
+    border-color: #4285F4;
+    color: #4285F4;
+}
+
+.chrome-btn:hover {
+    background: #4285F4;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+}
+
+.edge-btn {
+    background: #fff;
+    border-color: #0078D4;
+    color: #0078D4;
+}
+
+.edge-btn:hover {
+    background: #0078D4;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.3);
+}
+
 /* Veri Kaynağı Seçimi */
 .data-source-section {
     background: #f8f9fa;
