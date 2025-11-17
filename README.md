@@ -27,6 +27,12 @@ EDUBot is an **Electron-based desktop automation tool** designed for academic ad
   - ✅ Auto-suggested naming (Original Name + Date)
   - ✅ Real-time input validation
   - ✅ Keyboard shortcuts (Enter to confirm)
+- 🌐 **Browser Selection UI** (NEW - Nov 2025)
+  - ✅ One-click browser launch buttons (Chrome/Edge)
+  - ✅ Interactive browser selection modal
+  - ✅ Visual browser type indicators
+  - ✅ Smart workflow execution without re-login
+  - ✅ Persistent session management UI
 
 ### 🚫 Not Included in Public Version
 
@@ -152,6 +158,45 @@ const isValidName = newWorkflowName.trim().length >= 3;
 ### Data Import
 ![Data Import](docs/screenshots/hybrid-import.png)
 *CSV data import and preview*
+
+### Browser Selection (NEW - Nov 2025)
+![Browser Selection](docs/screenshots/browser-selection.png)
+*Smart browser detection and selection for workflow execution*
+
+**Key Features:**
+- **One-Click Launch:** Start Chrome/Edge in debug mode directly from UI
+- **Smart Detection:** Automatically finds open browsers with debug ports
+- **Visual Selection:** Clear icons and port information
+- **Session Persistence:** Browser stays open after workflow completion
+- **No Re-login:** Connect to existing browser sessions
+
+**UI Components (Showcased):**
+```jsx
+// Browser Launch Buttons
+<button onClick={() => handleLaunchBrowser('chrome')} className="chrome-btn">
+  🌐 Chrome ile Başlat
+</button>
+<button onClick={() => handleLaunchBrowser('edge')} className="edge-btn">
+  🔷 Edge ile Başlat
+</button>
+
+// Browser Selection Modal
+{showBrowserSelection && (
+  <div className="browser-selection-modal">
+    {browserChoices.map(choice => (
+      <button onClick={() => handleBrowserSelect(choice)}>
+        {choice.label}
+      </button>
+    ))}
+  </div>
+)}
+```
+
+**Backend Logic (Private - Not shown):**
+- Browser process detection via OS commands
+- Debug port availability checking (9222, 9223, 9224)
+- Puppeteer connection management (connect vs launch)
+- Session persistence (disconnect without close)
 
 ---
 
