@@ -7,6 +7,149 @@
 
 ## 🆕 Recent Features
 
+### 🌐 Browser Selection & Launch UI (Nov 2025)
+
+**Status:** ✅ Implemented  
+**Type:** UI + Backend Integration  
+**Complexity:** High
+
+#### 📋 Overview
+
+Smart browser selection system that allows users to connect to existing browser sessions or launch new ones in debug mode, eliminating the need for repeated logins during workflow execution.
+
+#### 🎨 User Experience
+
+1. **Browser Launch:** Click "Chrome ile Başlat" or "Edge ile Başlat"
+2. **Login Once:** Authenticate in the opened browser
+3. **Start Workflow:** Click "Çalıştır" on any workflow
+4. **Select Browser:** Choose from detected browsers or launch new
+5. **Execute:** Workflow runs in selected browser (no re-login needed)
+6. **Persistence:** Browser stays open after workflow completion
+
+#### 💻 Technical Implementation (UI Layer)
+
+**Component:** `src/renderer/components/WorkflowRunner.jsx`
+
+```jsx
+// Browser Launch Section
+<div className="browser-launch-section">
+    <h3>🌐 Tarayıcı Hazırlığı</h3>
+    <div className="browser-launch-buttons">
+        <button onClick={() => handleLaunchBrowser('chrome')} className="chrome-btn">
+            🌐 Chrome ile Başlat
+        </button>
+        <button onClick={() => handleLaunchBrowser('edge')} className="edge-btn">
+            🔷 Edge ile Başlat
+        </button>
+    </div>
+</div>
+
+// Browser Selection Modal
+{showBrowserSelection && (
+    <div className="browser-selection-modal">
+        <div className="modal-content">
+            <h3>🌐 Tarayıcı Seçin</h3>
+            <p className="help-text">
+                Açık olan ve login olduğunuz tarayıcıyı seçerseniz, 
+                yeniden login yapmanıza gerek kalmaz.
+            </p>
+            <div className="browser-choices">
+                {browserChoices.map((choice) => (
+                    <button
+                        key={choice.id}
+                        onClick={() => handleBrowserSelect(choice)}
+                        className="browser-choice-btn"
+                    >
+                        <span className="browser-icon">{choice.label.split(' ')[0]}</span>
+                        <span className="browser-name">{choice.label}</span>
+                    </button>
+                ))}
+            </div>
+        </div>
+    </div>
+)}
+```
+
+**Styling:** `src/renderer/components/WorkflowRunner.css`
+
+```css
+/* Browser Launch Section */
+.browser-launch-section {
+    background: #e3f2fd;
+    padding: 20px;
+    border-radius: 8px;
+    border: 2px solid #2196F3;
+}
+
+.launch-browser-btn {
+    flex: 1;
+    padding: 15px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    border: 2px solid;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.chrome-btn:hover {
+    background: #4285F4;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+}
+
+/* Browser Selection Modal */
+.browser-selection-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.browser-choice-btn:hover {
+    background: #e3f2fd;
+    border-color: #2196F3;
+    transform: translateX(5px);
+}
+```
+
+#### 🔒 Backend Logic (Private - Not Shown)
+
+**Browser Detection Algorithm:**
+- OS process enumeration (tasklist on Windows)
+- Debug port availability checking (HTTP GET to localhost:9222/json/version)
+- Browser type identification (Chrome vs Edge via User-Agent)
+- Port range scanning (9222, 9223, 9224)
+
+**Connection Management:**
+- `puppeteer.connect()` for existing browsers
+- `puppeteer.launch()` for new temporary sessions
+- Session persistence flag (`connectedToExisting`)
+- Graceful disconnect vs close logic
+
+**Security Features:**
+- No credential storage (browser session only)
+- Temporary user data dir for new browsers
+- Automatic cleanup on app exit
+- Debug port access control
+
+#### 🎯 Benefits
+
+- ✅ **Time Saving:** No repeated logins
+- ✅ **Security:** Credentials stay in browser
+- ✅ **Flexibility:** Use existing or new browser
+- ✅ **Persistence:** Browser stays open for next workflow
+- ✅ **User-Friendly:** One-click browser launch
+
+---
+
 ### 🔄 Workflow Duplication (Nov 2025)
 
 **Status:** ✅ Implemented  
