@@ -59,8 +59,8 @@ function Dashboard({ onNavigate, onSelectWorkflow }) {
   };
 
   const handleEditWorkflow = (workflow) => {
-    onSelectWorkflow(workflow);
-    onNavigate('workflow-designer');
+    //onSelectWorkflow(workflow);
+    onNavigate('workflow-designer', { workflowId: workflow.id });
   };
 
   const handleDeleteWorkflow = async (workflowId) => {
