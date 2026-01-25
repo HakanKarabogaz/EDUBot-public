@@ -119,7 +119,9 @@ npm run dev
 ![Workflow Duplication](docs/screenshots/workflow-duplication.png)
 *One-click workflow copy with interactive modal dialog*
 
-**Recent Feature (Nov 2025):** Workflow Duplication
+**Recent Feature (Jan 2026):** AI-powered decision-making mechanisms have been integrated into the workflow. 
+
+Workflow Duplication
 - Click "Copy" button on any workflow card
 - Modal dialog opens with auto-suggested name
 - Edit name and press Enter or click "Kopyala"
