@@ -84,6 +84,12 @@ const loadWorkflow = async () => {
 
 ## 🆕 Recent Features
 
+### AI-powered decision-making mechanisms have been integrated into the workflow. (Jan 2026)
+
+**Status:** ✅ Implemented  
+**Type:** Full-Stack Feature (UI Showcase)  
+**Complexity:** High
+
 ### 📁 Hierarchical Navigation & Category Management (Nov 2025)
 
 **Status:** ✅ Implemented  
