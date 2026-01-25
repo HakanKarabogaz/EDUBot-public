@@ -1,6 +1,6 @@
 # 🎯 EDUBot Feature Documentation
 
-> **Last Updated:** December 23, 2025  
+> **Last Updated:** January 25, 2026  
 > **Version:** Demo/Public (UI Showcase)
 
 ---
