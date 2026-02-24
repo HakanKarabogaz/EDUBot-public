@@ -180,7 +180,7 @@ data.gno_scale = is100Scale ? 100 : 4;
 
 **Workflow:** Lateral transfer application review
 **Test Date:** January 27, 2026
-**Student:** ELİF EYLÜL GÖDELEK
+**Student:** Student Name
 
 | # | Rule | Type | Result |
 |---|------|------|--------|
