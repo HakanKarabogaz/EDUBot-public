@@ -1,11 +1,304 @@
 # 🎯 EDUBot Feature Documentation
 
-> **Last Updated:** January 25, 2026  
+> **Last Updated:** January 2026
 > **Version:** Demo/Public (UI Showcase)
 
 ---
 
 ## 🆕 Recent Updates
+
+### 🤖 AI Decision Engine — Akıllı Belge Kontrolü (Jan 2026)
+
+**Status:** ✅ Implemented & Production-Tested
+**Type:** Full-Stack AI Feature
+**Complexity:** Very High
+
+#### 📋 Overview
+
+EDUBot'a yerel LLM entegrasyonu ile otomatik karar verme sistemi eklendi. Öğrenci başvurularında transkript, öğrenci belgesi ve disiplin belgelerini otomatik analiz ederek ONAY/RED kararı verebiliyor. Karar sistemi LM Studio üzerinden yerel AI modelleri kullanıyor — hiçbir veri dışarı çıkmıyor.
+
+#### 🎨 User Experience
+
+1. **Workflow Design:** AI Karar step'ini workflow'a ekle, kuralları görsel builder ile tanımla
+2. **Rule Builder UI:** Karşılaştırma, benzerlik, regex, liste, AI analiz kuralları drag & drop
+3. **Connection Test:** Tek tuşla LM Studio bağlantısını test et
+4. **Auto Execution:** Her CSV kaydı için belgeleri otomatik indir, parse et, kuralları uygula
+5. **Smart Decision:** ONAY/RED kararını %100 güven ile ver, onay/red butonuna otomatik tıkla
+
+#### 💻 Technical Implementation (UI Layer)
+
+**New Action Type:** `ai_decision` in `src/renderer/components/StepEditor.jsx`
+
+```jsx
+// AI Decision Step type with visual rule builder
+{
+    id: 'ai_decision',
+    icon: <Brain size={20} />,
+    label: 'AI Karar',
+    description: 'Yerel AI modeli ile otomatik karar verme'
+}
+
+// Rule builder UI - dynamic add/remove
+const RuleBuilder = ({ rules, onChange }) => {
+    const ruleTypes = [
+        { value: 'comparison', label: 'Karşılaştırma (≥, ≤, ==)' },
+        { value: 'similarity', label: 'String Benzerliği' },
+        { value: 'regex', label: 'Pattern Eşleştirme' },
+        { value: 'list_check', label: 'Liste Kontrolü' },
+        { value: 'ai_analysis', label: 'AI Semantik Analiz' }
+    ];
+    // Dynamic rule card with add/delete buttons
+};
+
+// Connection test button
+<button onClick={testLMStudioConnection}>
+    🔌 Bağlantıyı Test Et
+</button>
+// → Returns: "✅ Connected | Model: qwen2.5-14b-instruct"
+```
+
+**Config Format:**
+```json
+{
+  "action_type": "ai_decision",
+  "config": {
+    "endpoint": "http://localhost:1234/v1",
+    "model": "qwen2.5-14b-instruct",
+    "visionModel": "qwen2-vl-7b-instruct",
+    "with_documents": true,
+    "documentsTableSelector": "table.table-bordered",
+    "rules": [
+      {"name": "gano_minimum", "type": "comparison", "operator": ">=", "threshold": 2.29, "field": "pdfData.gno"},
+      {"name": "tc_eslesmesi", "type": "exact_match", "csv_field": "TC Kimlik No", "pdf_field": "tc_kimlik"},
+      {"name": "disiplin_cezasi_kontrolu", "type": "text_search", "critical": true}
+    ],
+    "result_variable": "aiDecision",
+    "onPass": "click_approve",
+    "onFail": "click_reject",
+    "approveButtonSelector": "button.btn-green",
+    "rejectButtonSelector": "button.btn-red",
+    "timeout": 60000
+  }
+}
+```
+
+**Preload API:** `src/preload.js`
+
+```javascript
+window.electronAPI.ai = {
+    testConnection: (endpoint) => ipcRenderer.invoke('ai:testConnection', endpoint),
+    query: (prompt, options) => ipcRenderer.invoke('ai:query', prompt, options),
+    evaluateRules: (rules, context, options) => ipcRenderer.invoke('ai:evaluateRules', rules, context, options),
+    getModels: (endpoint) => ipcRenderer.invoke('ai:getModels', endpoint),
+    onDecision: (callback) => ipcRenderer.on('ai-decision', callback),
+    onDecisionPause: (callback) => ipcRenderer.on('ai-decision-pause', callback)
+}
+```
+
+#### 🔒 Backend Logic (Private — Not Shown)
+
+**Module:** `src/main/ai-decision-engine.js`
+
+**Architecture:**
+```
+CSV Record
+    │
+    ▼
+Navigate → URL ({{İşlem_href}})
+    │
+    ▼
+Scrape Document Links (HTML table → PDF URLs)
+    │
+    ├── Transcript PDF ──► Text Extraction (pdfjs)
+    │                           │
+    │                     < 50 chars? → Vision AI (qwen2-vl-7b)
+    │
+    ├── Discipline PDF ──► Text Extraction
+    │                           │
+    │                     < 50 chars? → Vision AI (OCR)
+    │
+    └── Student Certificate ──► Text Extraction
+                                    │
+                              < 50 chars? → Vision AI
+    │
+    ▼
+Rule Engine (7 rule types)
+    │
+    ▼
+Decision: ONAY / RED (confidence %)
+    │
+    ▼
+Auto-click Approve / Reject button
+```
+
+**Rule Types Implemented:**
+| Type | Description | Example |
+|------|-------------|---------|
+| `comparison` | Numeric comparison | `{{gano}} >= 2.29` |
+| `similarity` | String similarity (Levenshtein/Jaccard) | Program name match ≥ 90% |
+| `regex` | Pattern matching | TC No format |
+| `list_check` | Membership check | Required documents present |
+| `date_range` | Date freshness check | Certificate ≤ 30 days old |
+| `javascript` | Custom JS expression | Complex business logic |
+| `ai_analysis` | Semantic LLM analysis | "Is there disciplinary action?" |
+| `string_match` | Fuzzy string match | Name fields |
+| `exact_match` | Exact string equality | TC Kimlik matching |
+| `text_search` | Substring/phrase search | "disiplin cezası yoktur" |
+| `value_check` | Exact value equality | Failed course count == 0 |
+
+**PDF Parsing (In-Memory — No Disk I/O):**
+```javascript
+// Download PDF from URL → Buffer → Parse → Extract fields
+async downloadAndParseTranskriptFromUrl(url) {
+    const response = await fetch(url);
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);  // In memory only!
+    return await this.parseTranskriptPdf(buffer);
+}
+// Extracted: name, surname, TC, GNO, failed_courses, program, university, date
+```
+
+**Vision AI Fallback (Image-based PDFs):**
+```javascript
+// When text extraction returns < 50 chars → use Vision model
+if (extraction.text.length < 50) {
+    const visionResult = await this.analyzeDocument(pdfBuffer, prompt);
+    // qwen2-vl-7b-instruct reads the document visually
+    // Returns: "CEZA YOK" → normalized to "disiplin cezası yoktur"
+}
+```
+
+**GNO Scale Detection:**
+```javascript
+// Auto-detect 4-point vs 100-point GPA systems
+const is100Scale = /100\s*l[uü]k/i.test(text) || /100\s*[Pp]uan/i.test(text);
+data.gno_scale = is100Scale ? 100 : 4;
+// Threshold adapts: 100-scale → 60, 4-scale → 2.29
+```
+
+#### 🏆 WF-111 Production Test Results (Yatay Geçiş Başvuru Kontrolü)
+
+**Workflow:** Lateral transfer application review
+**Test Date:** January 27, 2026
+**Student:** ELİF EYLÜL GÖDELEK
+
+| # | Rule | Type | Result |
+|---|------|------|--------|
+| 1 | TC Identity Match | exact_match | ✅ PASS |
+| 2 | GPA Minimum (≥2.29) | comparison | ✅ PASS (2.95) |
+| 3 | Disciplinary Check | text_search + Vision AI | ✅ PASS |
+| 4 | Failed Courses (==0) | value_check | ✅ PASS |
+| 5 | Student Cert TC Match | exact_match | ✅ PASS |
+| 6 | Certificate Freshness | date_range | ✅ PASS (2 days) |
+| 7 | Student Status Active | text_search | ✅ PASS |
+
+**Final Decision: ✅ ONAY (100% confidence)**
+**Auto-clicked:** Approve button
+**Execution time:** ~8ms (rule evaluation only, excl. PDF download)
+
+#### 🐛 Bugs Fixed During Implementation
+
+| Bug | Root Cause | Fix |
+|-----|-----------|-----|
+| AI Decision config not loading on edit | No `ai_decision` case in StepEditor useEffect | Added dedicated case |
+| Step IDs changing on every save | DELETE-THEN-RECREATE pattern | Changed to UPSERT logic |
+| `decision.details.filter` not a function | Array converted to Object | Kept as Array, added `.detailsByName` |
+| `actionNavigate` ignoring template vars | Missing `replaceTemplateVariables` call | Added template replacement |
+| `workflowId` vs `workflow_id` mismatch | camelCase vs snake_case parameter | Unified to snake_case |
+| `resolveValue` returning literal paths | Only handled `{{var}}` format | Added dot-notation path resolution |
+| `tcFound is not defined` | JS scope error in TC parsing | Added `let tcFound = null` |
+| Vision model result not applied | Reading `.text` instead of `.answer` | Added fallback: `answer \|\| text \|\| content` |
+| FF notes counted as failed courses | "FF" appears in grade scale definition | Changed to count only `K` (Kaldı) status |
+
+#### 📊 Model Configuration
+
+**Hardware:** RTX 5060 Ti 16GB VRAM + i9-14900K + 32GB RAM
+
+| Model | Purpose | VRAM | Speed |
+|-------|---------|------|-------|
+| `qwen2.5-14b-instruct` | Text analysis, rule evaluation | ~9GB | Fast |
+| `qwen2-vl-7b-instruct` | Vision/OCR for image PDFs | ~5GB | Fast |
+| **Total** | Hybrid pipeline | **~14GB** | **Fits in 16GB** |
+
+#### 🔄 Complete Execution Flow
+
+```
+1. Load CSV (student applications)
+   ↓
+2. For each record:
+   ├─ Navigate → Application URL ({{İşlem_href}})
+   ├─ Scrape → Document table (3 PDFs: transcript, discipline, student cert)
+   ├─ Download → PDFs to memory buffer (no disk writes)
+   ├─ Parse → Extract: TC, Name, GNO, courses, status, program
+   │   └─ Fallback → Vision AI if PDF is scanned/image-based
+   ├─ Evaluate → 7+ rules against CSV + PDF data
+   └─ Act → Click ONAY or RED button automatically
+   ↓
+3. Results: Success/Error counts, execution log
+```
+
+#### 🎯 Benefits
+
+- ✅ **Privacy:** All AI runs locally via LM Studio — no data sent externally
+- ✅ **Speed:** ~8ms rule evaluation per record (excl. PDF download)
+- ✅ **Accuracy:** 100% on tested records
+- ✅ **Flexibility:** 11 rule types, unlimited rules per workflow step
+- ✅ **Resilience:** Vision AI fallback for scanned/image PDFs
+- ✅ **Multi-format:** Handles 4-point and 100-point GPA scales
+- ✅ **No re-login:** Uses existing browser session
+
+#### 📊 Metrics
+
+- **New Files:** `src/main/ai-decision-engine.js` (~2000+ lines, private)
+- **Modified Files:** `workflow-executor.js`, `index.js`, `preload.js`, `StepEditor.jsx`, `WorkflowDesigner.jsx`, `LogViewer.jsx`, `WorkflowRunner.jsx`
+- **Rule Types:** 11 distinct types
+- **AI Models Used:** 2 (text + vision)
+- **PDF Sources:** 3 document types parsed
+- **Production Tests:** 15+ workflow executions with real data
+- **Development Duration:** Jan 24–28, 2026 (5 days)
+
+---
+
+### 🏫 Real System Integration — First Success (Jan 2026)
+
+**Status:** ✅ Implemented
+**Date:** January 15, 2026
+**System:** OBS (Student Information System — AngularJS)
+
+#### 📋 Overview
+
+First successful end-to-end test against the live academic management system. The critical breakthrough was discovering that multiple identical buttons exist on the page in different Angular scopes — solved by using parent-context selectors.
+
+#### 🔑 Key Technical Insight
+
+```css
+/* ❌ Fails — 3+ matching buttons in different Angular scopes */
+button[ng-click='ogrenciBilgileriDuzenle()']
+
+/* ✅ Works — Unique button in primary action area */
+.pull-right .action_buttons button[ng-click='ogrenciBilgileriDuzenle()']
+```
+
+**Lessons Learned:**
+- Always target buttons in header/primary action areas (always visible, correct scope)
+- Use multiple selector fallbacks for resilience
+- Debug with `execute_script` first to inspect DOM state
+- Wait for Angular controller with `wait_for_element` on controller element
+- Browser console errors from the target app can be safely ignored if workflow continues
+
+---
+
+### 🐛 Bug Fixes (Jan 2026 — AI Integration)
+
+Multiple bugs discovered and fixed during the AI Decision Engine implementation sprint. See the AI Decision Engine section above for the full bug fix table.
+
+**Key Fixes:**
+- `WorkflowDesigner.jsx` — Step save changed from DELETE-THEN-RECREATE to UPSERT (step IDs now stable)
+- `LogViewer.jsx` / `WorkflowRunner.jsx` — `workflowId` → `workflow_id` parameter casing fix
+- `workflow-executor.js` — `actionNavigate` now replaces `{{template}}` variables in URLs
+- `ai-decision-engine.js` — Vision model result field (`answer` vs `text`) normalization
+
+---
 
 ### 🐛 Bug Fixes (Dec 2025)
 
@@ -83,12 +376,6 @@ const loadWorkflow = async () => {
 ---
 
 ## 🆕 Recent Features
-
-### AI-powered decision-making mechanisms have been integrated into the workflow. (Jan 2026)
-
-**Status:** ✅ Implemented  
-**Type:** Full-Stack Feature (UI Showcase)  
-**Complexity:** High
 
 ### 📁 Hierarchical Navigation & Category Management (Nov 2025)
 
@@ -1068,6 +1355,12 @@ COMMIT;  // Only if all succeed
 ---
 
 ## 🔮 Future Enhancements (Planned)
+
+### AKTS/Semester Credit Validation (In Progress)
+- Automatic semester detection from enrollment date
+- Per-semester 30 AKTS minimum rule
+- Multi-university format support (different transcript layouts)
+- Format 1 (Tamamlanan Kredi/AKTS table) vs Format 2 (Başarılan Kredi + Sınıfı/Dönemi) handling
 
 ### Workflow Templates
 - Pre-built workflow templates
