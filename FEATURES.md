@@ -259,34 +259,6 @@ data.gno_scale = is100Scale ? 100 : 4;
 
 ---
 
-### 🏫 Real System Integration — First Success (Jan 2026)
-
-**Status:** ✅ Implemented
-**Date:** January 15, 2026
-**System:** OBS (Student Information System — AngularJS)
-
-#### 📋 Overview
-
-First successful end-to-end test against the live academic management system. The critical breakthrough was discovering that multiple identical buttons exist on the page in different Angular scopes — solved by using parent-context selectors.
-
-#### 🔑 Key Technical Insight
-
-```css
-/* ❌ Fails — 3+ matching buttons in different Angular scopes */
-button[ng-click='ogrenciBilgileriDuzenle()']
-
-/* ✅ Works — Unique button in primary action area */
-.pull-right .action_buttons button[ng-click='ogrenciBilgileriDuzenle()']
-```
-
-**Lessons Learned:**
-- Always target buttons in header/primary action areas (always visible, correct scope)
-- Use multiple selector fallbacks for resilience
-- Debug with `execute_script` first to inspect DOM state
-- Wait for Angular controller with `wait_for_element` on controller element
-- Browser console errors from the target app can be safely ignored if workflow continues
-
----
 
 ### 🐛 Bug Fixes (Jan 2026 — AI Integration)
 
