@@ -328,7 +328,7 @@ cssCopy
 .logs-container {
     max-height: 400px;
     overflow-y: auto;
-    background: #1e1e1e;
+    background: #f8f9fa;
     padding: 15px;
     border-radius: 5px;
     font-family: 'Courier New', monospace;
